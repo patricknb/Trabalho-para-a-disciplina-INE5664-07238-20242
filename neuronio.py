@@ -13,6 +13,9 @@ class Neuronio:
     def set_atributos(self, atributos:list):
         self.__atributos = atributos
 
+    def get_y(self):
+        return self.__y
+
     def gerar_pesos_aleatorios(self, nro_atributos:int):
         for n in range(nro_atributos):
             self.__pesos_sinapticos.append((random.randint(1,50)/100))
@@ -21,8 +24,9 @@ class Neuronio:
         for i in range(len(self.__atributos)):
             self.__v = self.__atributos[i] * self.__pesos_sinapticos[i]
         self.__v = self.__v + self.__vies
+        self.funcao_de_ativacao()
 
     def funcao_de_ativacao(self):
         self.__y = self.__v * (self.__v > 0)
-        
+
     

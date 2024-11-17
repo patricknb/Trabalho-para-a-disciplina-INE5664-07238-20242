@@ -1,11 +1,14 @@
 import numpy as np
 
 
-class CamadaSaida:
+class Saida:
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, classe) -> None:
+        self.__classe = classe
         
+    def get_classe(self):
+        return self.__classe
+
     def softmax(y):
         """Compute softmax values for each sets of scores in x."""
         e_y = np.exp(y - np.max(y))
