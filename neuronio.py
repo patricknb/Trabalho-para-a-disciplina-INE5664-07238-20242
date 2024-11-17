@@ -24,4 +24,5 @@ class Neuronio:
 
     def funcao_de_ativacao(self):
         self.__y = self.__v * (self.__v > 0)
+        
     

@@ -10,3 +10,4 @@ class CamadaSaida:
         """Compute softmax values for each sets of scores in x."""
         e_y = np.exp(y - np.max(y))
         return e_y / e_y.sum()
+    
