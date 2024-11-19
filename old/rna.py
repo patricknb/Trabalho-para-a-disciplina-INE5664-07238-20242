@@ -1,4 +1,5 @@
 from neuronio import Neuronio
+from saida import Saida
 import pandas as pd
 
 class RedeNeural:
@@ -16,7 +17,7 @@ class RedeNeural:
         qtd_atributos = len(atributos.columns) - 1
 
         self.gerar_camadas(qtd_camadas, qtd_atributos)
-        self.gerar_saidas(qtd_saidas, atributos)
+        self.gerar_saidas(qtd_saidas)
 
         for epoca in range(qtd_epocas):
             for index, row in atributos.iterrows():
@@ -35,5 +36,10 @@ class RedeNeural:
                 print('camada {} neuronio {} criado!'.format(n, m))
 
             self.__camadas.append(temp_neu)
+
+    def gerar_saidas(self, qtd_saida):
+        for n in range(qtd_saida):
+            print('saida {} criada!'.format(n))
+            self.__camadas.append(Saida())
 
 r = RedeNeural()
