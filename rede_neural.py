@@ -1,81 +1,321 @@
-import pandas as pd
+'''versão com treino
+
 import numpy as np
+import pandas as pd
 
-# Carregar o arquivo
-file_path = 'esrb-rating.csv'
-data = pd.read_csv(file_path)
-
-# Separar os dados: entradas (todas as colunas, exceto a última) e rótulos (última coluna)
-inputs = data.iloc[:, :-1]  # Todas as colunas, exceto a última
-labels = data.iloc[:, -1]  # Última coluna (as classes)
-
-# Configurações da rede
-nro_entradas = inputs.shape[1]  # Número de colunas de entrada
-nro_neuronios = 4  # Número de neurônios por camada oculta
-nro_camadas = 3  # Número de camadas ocultas
-nro_classes = 4  # Número de classes para a saída
-
-# Inicializar pesos e bias para cada camada oculta
-camadas = []
-for i in range(nro_camadas):
-    if i == 0:
-        # Primeira camada: pesos conectando entradas aos neurônios
-        pesos = np.random.rand(nro_entradas, nro_neuronios)
-    else:
-        # Camadas ocultas: pesos conectando neurônios da camada anterior
-        pesos = np.random.rand(nro_neuronios, nro_neuronios)
-    bias = np.random.rand(nro_neuronios)  # Bias para os neurônios da camada
-    camadas.append((pesos, bias))
-
-# Adicionar a camada de saída
-pesos_saida = np.random.rand(nro_neuronios, nro_classes)
-bias_saida = np.random.rand(nro_classes)
-
-# Definir as funções de ativação
-def relu(x):
-    return np.maximum(0, x)
-
-def softmax(x):
-    exp_x = np.exp(x - np.max(x))  # Estabilização numérica
-    return exp_x / np.sum(exp_x)
-
-def softmax_probabilidades(logits):
-    logits = np.array(logits)  # Garantir que os logits são um array numpy
-    max_logit = np.max(logits)
-    exp_logits = np.exp(logits - max_logit)  # Exponenciação dos logits
-    probabilities = exp_logits / np.sum(exp_logits)  # Normalização para somar 1
-    return probabilities
-
-# Exibir configurações
-print(f"Número de entradas: {nro_entradas}")
-print(f"Número de camadas ocultas: {nro_camadas}")
-print(f"Número de neurônios por camada oculta: {nro_neuronios}")
-print(f"Número de classes (saída): {nro_classes}")
-
-# Forward propagation
-for epoca in range(1):  # Apenas uma época para simplificar
-    for index, row in inputs.iterrows():  # Iterar pelas linhas das entradas
-        x = row.to_numpy()  # Converter a linha para um vetor NumPy
+# Classe para a Rede Neural
+class NeuralNetwork:
+    def __init__(self, tamanho_entrada, camadas_ocultas, tamanho_saida):
+        self.tamanho_entrada = tamanho_entrada
+        self.camadas_ocultas = camadas_ocultas
+        self.tamanho_saida = tamanho_saida
         
-        # Passar pelas camadas ocultas
-        for camada_idx, (pesos, bias) in enumerate(camadas):
-            v = np.dot(x, pesos) + bias  # Cálculo do valor da camada
-            x = relu(v)  # Aplicar ReLU e usar a saída como entrada para a próxima camada
-            print(f"Camada {camada_idx + 1}, saída: {x}")
+        # Inicializando os pesos e bias para cada camada com inicialização de He
+        self.pesos = []
+        self.biases = []
         
-        # Camada de saída (após as camadas ocultas)
-        v_saida = np.dot(x, pesos_saida) + bias_saida
-        logits = softmax(v_saida)  # Aplicar softmax para obter logits
-        y_prob = softmax_probabilidades(logits)
-        print(f"Camada de saída (softmax): {y_prob}")
-
-         # Mostrar a classe prevista (índice com maior probabilidade)
-        classe_prevista = np.argmax(y_prob) + 1  # Adiciona 1 porque as classes começam de 1
-        classe_corretiva = labels.iloc[index]  # A classe correta para esta linha de entrada
+        # Primeira camada oculta (inicialização de He)
+        self.pesos.append(np.random.randn(tamanho_entrada, camadas_ocultas[0]) * np.sqrt(2. / tamanho_entrada))
+        self.biases.append(np.zeros((1, camadas_ocultas[0])))
         
-        print(f"Classe correta: {classe_corretiva}, Classe prevista: {classe_prevista}\n")
+        # Camadas ocultas intermediárias (inicialização de He)
+        for i in range(1, len(camadas_ocultas)):
+            self.pesos.append(np.random.randn(camadas_ocultas[i-1], camadas_ocultas[i]) * np.sqrt(2. / camadas_ocultas[i-1]))
+            self.biases.append(np.zeros((1, camadas_ocultas[i])))
+        
+        # Camada de saída (inicialização de He)
+        self.pesos.append(np.random.randn(camadas_ocultas[-1], tamanho_saida) * np.sqrt(2. / camadas_ocultas[-1]))
+        self.biases.append(np.zeros((1, tamanho_saida)))
+    
+    # Função de ativação ReLU
+    def relu(self, x):
+        return np.maximum(0, x)
+
+    # Derivada da ReLU
+    def relu_derivada(self, x):
+        return (x > 0).astype(int)
+
+    # Função Softmax
+    def softmax(self, x):
+        exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))  # Para estabilidade numérica
+        return exp_x / np.sum(exp_x, axis=1, keepdims=True)
+    
+    # Função de custo (entropia cruzada)
+    def cross_entropy(self, y_pred, y_true):
+        m = y_true.shape[0]
+        epsilon = 1e-8  # Para evitar log(0)
+        return -np.sum(y_true * np.log(y_pred + epsilon)) / m
+
+    # Forward pass
+    def forward(self, X):
+        self.activations = []
+        self.z_values = []
+        
+        # Passando pela primeira camada oculta
+        z = np.dot(X, self.pesos[0]) + self.biases[0]
+        a = self.relu(z)
+        self.activations.append(a)
+        self.z_values.append(z)
+        
+        # Passando pelas camadas ocultas intermediárias
+        for i in range(1, len(self.camadas_ocultas)):
+            z = np.dot(self.activations[-1], self.pesos[i]) + self.biases[i]
+            a = self.relu(z)
+            self.activations.append(a)
+            self.z_values.append(z)
+        
+        # Camada de saída (com softmax)
+        z_output = np.dot(self.activations[-1], self.pesos[-1]) + self.biases[-1]
+        y_pred = self.softmax(z_output)
+        self.activations.append(y_pred)
+        
+        return y_pred
+
+    # Backpropagation
+    def backpropagate(self, X, y, learning_rate):
+        m = X.shape[0]
+        
+        # Gradiente da camada de saída
+        gradiente_saida = self.activations[-1] - y
+        
+        # Atualizar pesos e bias da camada de saída
+        self.pesos[-1] -= np.dot(self.activations[-2].T, gradiente_saida) * learning_rate / m
+        self.biases[-1] -= np.sum(gradiente_saida, axis=0, keepdims=True) * learning_rate / m
+        
+        # Propagar os gradientes pelas camadas ocultas
+        gradiente = gradiente_saida
+        for i in range(len(self.camadas_ocultas) - 1, -1, -1):
+            gradiente = np.dot(gradiente, self.pesos[i+1].T) * self.relu_derivada(self.z_values[i])
+            if i > 0:
+                self.pesos[i] -= np.dot(self.activations[i-1].T, gradiente) * learning_rate / m
+                self.biases[i] -= np.sum(gradiente, axis=0, keepdims=True) * learning_rate / m
+            else:
+                self.pesos[i] -= np.dot(X.T, gradiente) * learning_rate / m
+                self.biases[i] -= np.sum(gradiente, axis=0, keepdims=True) * learning_rate / m
+        
+        # Verificando o valor do gradiente para debugging
+        if np.any(np.isnan(self.pesos[0])) or np.any(np.isnan(self.biases[0])):
+            print("NaN encontrado nos pesos ou bias")
+
+    # Treinamento da rede neural
+    def train(self, X, y, epocas, batch_size, learning_rate):
+        for epoca in range(epocas):
+            for i in range(0, len(X), batch_size):
+                X_batch = X[i:i+batch_size]
+                y_batch = y[i:i+batch_size]
+                
+                # Forward pass
+                y_pred = self.forward(X_batch)
+                
+                # Cálculo do custo
+                custo = self.cross_entropy(y_pred, y_batch)
+                
+                # Backpropagation
+                self.backpropagate(X_batch, y_batch, learning_rate)
+            
+            if epoca % 10 == 0:
+                print(f'Época {epoca}, Custo: {custo:.4f}')
+    
+    # Avaliação do modelo
+    def evaluate(self, X, y):
+        y_pred = self.forward(X)
+        predictions = np.argmax(y_pred, axis=1)
+        true_labels = np.argmax(y, axis=1)
+        accuracy = np.mean(predictions == true_labels)
+        return accuracy
+
+# 1. Carregar os dados
+caminho_arquivo = 'esrb-rating.csv'
+dados = pd.read_csv(caminho_arquivo)
+
+# 2. Pré-processamento
+entradas = dados.iloc[:, :-1].values  # Todas as colunas, exceto a última
+rotulos = dados.iloc[:, -1].values    # Última coluna (os rótulos de classe)
+
+# 3. Normalizar os dados de entrada
+entradas_normalizadas = (entradas - entradas.mean(axis=0)) / entradas.std(axis=0)
+
+# 4. One-Hot Encoding dos rótulos
+rotulos_one_hot = pd.get_dummies(rotulos).values
+
+# 5. Inicializar a rede neural
+tamanho_entrada = entradas_normalizadas.shape[1]
+tamanho_saida = rotulos_one_hot.shape[1]
+camadas_ocultas = [5, 5]  # Número de neurônios nas camadas ocultas
+nn = NeuralNetwork(tamanho_entrada, camadas_ocultas, tamanho_saida)
+
+# 6. Treinamento da rede neural
+epocas = 100
+batch_size = 32
+learning_rate = 0.01
+nn.train(entradas_normalizadas, rotulos_one_hot, epocas, batch_size, learning_rate)
+
+# 7. Avaliação
+precisao = nn.evaluate(entradas_normalizadas, rotulos_one_hot)
+print(f'Precisão final: {precisao:.2%}')
+'''
+
+#versão com treino e teste
+import numpy as np
+import pandas as pd
+
+class NeuralNetwork:
+    def __init__(self, tamanho_entrada, camadas_ocultas, tamanho_saida):
+        self.tamanho_entrada = tamanho_entrada
+        self.camadas_ocultas = camadas_ocultas
+        self.tamanho_saida = tamanho_saida
+        
+        self.pesos = []
+        self.biases = []
+        
+        # Inicialização das camadas
+        self.pesos.append(np.random.randn(tamanho_entrada, camadas_ocultas[0]) * np.sqrt(2. / tamanho_entrada))
+        self.biases.append(np.zeros((1, camadas_ocultas[0])))
+        
+        for i in range(1, len(camadas_ocultas)):
+            self.pesos.append(np.random.randn(camadas_ocultas[i-1], camadas_ocultas[i]) * np.sqrt(2. / camadas_ocultas[i-1]))
+            self.biases.append(np.zeros((1, camadas_ocultas[i])))
+        
+        self.pesos.append(np.random.randn(camadas_ocultas[-1], tamanho_saida) * np.sqrt(2. / camadas_ocultas[-1]))
+        self.biases.append(np.zeros((1, tamanho_saida)))
+
+    def relu(self, x):
+        return np.maximum(0, x)
+
+    def relu_derivada(self, x):
+        return (x > 0).astype(int)
+
+    def softmax(self, x):
+        exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))
+        return exp_x / np.sum(exp_x, axis=1, keepdims=True)
+    
+    def cross_entropy(self, y_pred, y_true):
+        m = y_true.shape[0]
+        epsilon = 1e-8  # Para evitar log(0)
+        return -np.sum(y_true * np.log(y_pred + epsilon)) / m
+
+    def forward(self, X):
+        self.activations = []
+        self.z_values = []
+        
+        # Propagação para frente
+        z = np.dot(X, self.pesos[0]) + self.biases[0]
+        a = self.relu(z)
+        self.activations.append(a)
+        self.z_values.append(z)
+        
+        for i in range(1, len(self.camadas_ocultas)):
+            z = np.dot(self.activations[-1], self.pesos[i]) + self.biases[i]
+            a = self.relu(z)
+            self.activations.append(a)
+            self.z_values.append(z)
+        
+        z_output = np.dot(self.activations[-1], self.pesos[-1]) + self.biases[-1]
+        y_pred = self.softmax(z_output)
+        self.activations.append(y_pred)
+        
+        return y_pred
+
+    def backpropagate(self, X, y, learning_rate):
+        m = X.shape[0]
+        
+        gradiente_saida = self.activations[-1] - y
+        
+        self.pesos[-1] -= np.dot(self.activations[-2].T, gradiente_saida) * learning_rate / m
+        self.biases[-1] -= np.sum(gradiente_saida, axis=0, keepdims=True) * learning_rate / m
+        
+        gradiente = gradiente_saida
+        for i in range(len(self.camadas_ocultas) - 1, -1, -1):
+            gradiente = np.dot(gradiente, self.pesos[i+1].T) * self.relu_derivada(self.z_values[i])
+            if i > 0:
+                self.pesos[i] -= np.dot(self.activations[i-1].T, gradiente) * learning_rate / m
+                self.biases[i] -= np.sum(gradiente, axis=0, keepdims=True) * learning_rate / m
+            else:
+                self.pesos[i] -= np.dot(X.T, gradiente) * learning_rate / m
+                self.biases[i] -= np.sum(gradiente, axis=0, keepdims=True) * learning_rate / m
+
+    def train(self, X, y, epocas, batch_size, learning_rate):
+        for epoca in range(epocas):
+            for i in range(0, len(X), batch_size):
+                X_batch = X[i:i+batch_size]
+                y_batch = y[i:i+batch_size]
+                
+                y_pred = self.forward(X_batch)
+                custo = self.cross_entropy(y_pred, y_batch)
+                self.backpropagate(X_batch, y_batch, learning_rate)
+            
+            if epoca % 10 == 0:
+                # Calcular a precisão nos dados de treino durante o treinamento
+                treino_precisao = self.evaluate(X, y)
+                print(f'Época {epoca}, Custo: {custo:.4f}, Precisão no treino: {treino_precisao:.2%}')
+    
+    def evaluate(self, X, y):
+        y_pred = self.forward(X)
+        predictions = np.argmax(y_pred, axis=1)
+        true_labels = np.argmax(y, axis=1)
+        accuracy = np.mean(predictions == true_labels)
+        return accuracy
+    
+    # Salvar pesos e bias
+    def save_pesos(self, file_path):
+        # Salva pesos e bias com nomes claros para cada camada
+        np.savez(file_path, 
+                pesos_0=self.pesos[0], biases_0=self.biases[0],
+                pesos_1=self.pesos[1], biases_1=self.biases[1],
+                pesos_2=self.pesos[2], biases_2=self.biases[2])
+
+    # Carregar pesos e bias
+    def load_pesos(self, file_path):
+        npzfile = np.load(file_path)
+        # Carregar pesos e bias para cada camada com nomes explícitos
+        self.pesos = [npzfile[f'pesos_{i}'] for i in range(len(self.pesos))]
+        self.biases = [npzfile[f'biases_{i}'] for i in range(len(self.biases))]
 
 
-# Apenas para verificação, podemos mostrar os rótulos correspondentes
-print("\nRótulos das amostras:")
-print(labels.to_numpy())
+# 1. Carregar os dados de treinamento
+caminho_arquivo = 'esrb-rating.csv'
+dados = pd.read_csv(caminho_arquivo)
+
+# 2. Pré-processamento para os dados de treinamento
+entradas = dados.iloc[:, :-1].values  # Todas as colunas, exceto a última
+rotulos = dados.iloc[:, -1].values    # Última coluna (os rótulos de classe)
+
+# Normalização com verificação de desvio padrão zero
+def normalize_data(X):
+    # Evitar divisão por zero, adicionando uma constante para desvio padrão
+    std_dev = X.std(axis=0)
+    std_dev[std_dev == 0] = 1  # Substituir desvio padrão zero por 1
+    return (X - X.mean(axis=0)) / std_dev
+
+entradas_normalizadas = normalize_data(entradas)
+rotulos_one_hot = pd.get_dummies(rotulos).values
+
+# 3. Inicializar a rede neural
+tamanho_entrada = entradas_normalizadas.shape[1]
+tamanho_saida = rotulos_one_hot.shape[1]
+camadas_ocultas = [5, 5]  # Número de neurônios nas camadas ocultas
+nn = NeuralNetwork(tamanho_entrada, camadas_ocultas, tamanho_saida)
+
+# 4. Carregar os dados de teste
+dados_teste = pd.read_csv('test_esrb.csv')
+
+# 7. Pré-processamento para os dados de teste
+entradas_teste = dados_teste.iloc[:, :-1].values  # Todas as colunas, exceto a última
+rotulos_teste = dados_teste.iloc[:, -1].values    # Última coluna (os rótulos de classe)
+entradas_teste_normalizadas = normalize_data(entradas_teste)
+rotulos_teste_one_hot = pd.get_dummies(rotulos_teste).values
+
+# 5. Treinamento da rede neural
+epocas = 100
+batch_size = 32
+learning_rate = 0.01
+nn.train(entradas_normalizadas, rotulos_one_hot, epocas, batch_size, learning_rate)
+
+# 6. Salvar pesos e bias após o treinamento
+nn.save_pesos('modelo_treinado.npz')
+
+# 7. Avaliar o modelo com os dados de teste após o treinamento
+precisao_teste = nn.evaluate(entradas_teste_normalizadas, rotulos_teste_one_hot)
+precisao_treino = nn.evaluate(entradas_normalizadas, rotulos_one_hot)
+print(f'Precisão nos dados de treino: {precisao_treino:.2%}')
+print(f'Precisão nos dados de teste: {precisao_teste:.2%}')
