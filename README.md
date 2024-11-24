@@ -29,7 +29,7 @@ O repositório inclui o código-fonte organizado, datasets utilizados, e noteboo
 
 💻 Como usar:
 1. instale todas os requisitos do projeto
-2. Inicie o script main.py
+2. Execute o script main.py
 3. Siga os passos informados no terminal
 4. ???
 5. Profit
