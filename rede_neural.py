@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 # Classe para a Rede Neural
-class NeuralNetwork:
+class RedeNeural:
     def __init__(self, tamanho_entrada, camadas_ocultas, tamanho_saida):
         self.tamanho_entrada = tamanho_entrada
         self.camadas_ocultas = camadas_ocultas
@@ -142,7 +142,7 @@ rotulos_one_hot = pd.get_dummies(rotulos).values
 tamanho_entrada = entradas_normalizadas.shape[1]
 tamanho_saida = rotulos_one_hot.shape[1]
 camadas_ocultas = [5, 5]  # Número de neurônios nas camadas ocultas
-nn = NeuralNetwork(tamanho_entrada, camadas_ocultas, tamanho_saida)
+nn = RedeNeural(tamanho_entrada, camadas_ocultas, tamanho_saida)
 
 # 6. Treinamento da rede neural
 epocas = 100
@@ -159,7 +159,7 @@ print(f'Precisão final: {precisao:.2%}')
 import numpy as np
 import pandas as pd
 
-class NeuralNetwork:
+class RedeNeural:
     def __init__(self, tamanho_entrada, camadas_ocultas, tamanho_saida):
         self.tamanho_entrada = tamanho_entrada
         self.camadas_ocultas = camadas_ocultas
@@ -244,7 +244,7 @@ class NeuralNetwork:
                 custo = self.cross_entropy(y_pred, y_batch)
                 self.backpropagate(X_batch, y_batch, learning_rate)
             
-            if epoca % 10 == 0:
+            if epoca % 10 == 0 or epoca == epocas-1:
                 # Calcular a precisão nos dados de treino durante o treinamento
                 treino_precisao = self.evaluate(X, y)
                 print(f'Época {epoca}, Custo: {custo:.4f}, Precisão no treino: {treino_precisao:.2%}')
@@ -271,51 +271,3 @@ class NeuralNetwork:
         self.pesos = [npzfile[f'pesos_{i}'] for i in range(len(self.pesos))]
         self.biases = [npzfile[f'biases_{i}'] for i in range(len(self.biases))]
 
-
-# 1. Carregar os dados de treinamento
-caminho_arquivo = 'esrb-rating.csv'
-dados = pd.read_csv(caminho_arquivo)
-
-# 2. Pré-processamento para os dados de treinamento
-entradas = dados.iloc[:, :-1].values  # Todas as colunas, exceto a última
-rotulos = dados.iloc[:, -1].values    # Última coluna (os rótulos de classe)
-
-# Normalização com verificação de desvio padrão zero
-def normalize_data(X):
-    # Evitar divisão por zero, adicionando uma constante para desvio padrão
-    std_dev = X.std(axis=0)
-    std_dev[std_dev == 0] = 1  # Substituir desvio padrão zero por 1
-    return (X - X.mean(axis=0)) / std_dev
-
-entradas_normalizadas = normalize_data(entradas)
-rotulos_one_hot = pd.get_dummies(rotulos).values
-
-# 3. Inicializar a rede neural
-tamanho_entrada = entradas_normalizadas.shape[1]
-tamanho_saida = rotulos_one_hot.shape[1]
-camadas_ocultas = [5, 5]  # Número de neurônios nas camadas ocultas
-nn = NeuralNetwork(tamanho_entrada, camadas_ocultas, tamanho_saida)
-
-# 4. Carregar os dados de teste
-dados_teste = pd.read_csv('test_esrb.csv')
-
-# 7. Pré-processamento para os dados de teste
-entradas_teste = dados_teste.iloc[:, :-1].values  # Todas as colunas, exceto a última
-rotulos_teste = dados_teste.iloc[:, -1].values    # Última coluna (os rótulos de classe)
-entradas_teste_normalizadas = normalize_data(entradas_teste)
-rotulos_teste_one_hot = pd.get_dummies(rotulos_teste).values
-
-# 5. Treinamento da rede neural
-epocas = 100
-batch_size = 32
-learning_rate = 0.01
-nn.train(entradas_normalizadas, rotulos_one_hot, epocas, batch_size, learning_rate)
-
-# 6. Salvar pesos e bias após o treinamento
-nn.save_pesos('modelo_treinado.npz')
-
-# 7. Avaliar o modelo com os dados de teste após o treinamento
-precisao_teste = nn.evaluate(entradas_teste_normalizadas, rotulos_teste_one_hot)
-precisao_treino = nn.evaluate(entradas_normalizadas, rotulos_one_hot)
-print(f'Precisão nos dados de treino: {precisao_treino:.2%}')
-print(f'Precisão nos dados de teste: {precisao_teste:.2%}')
