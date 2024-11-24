@@ -1,12 +1,13 @@
 import pandas as pd
 from rede_neural import RedeNeural
+import time
 
 
 def main():
 
     # 1. Carregar os dados de treinamento
     #caminho_arquivo = 'esrb-rating.csv'
-    caminho_arquivo_treino = input('Digite o caminho para o arquivo de treino(ex: esrb-rating.csv)\n>')
+    caminho_arquivo_treino = input('Digite o caminho para o arquivo de treino(ex: esrb_rating.csv)\n>')
     dados = pd.read_csv(caminho_arquivo_treino)
 
     # 2. Pré-processamento para os dados de treinamento
@@ -39,7 +40,7 @@ def main():
     nn = RedeNeural(tamanho_entrada, camadas_ocultas, tamanho_saida)
 
     # 4. Carregar os dados de teste
-    caminho_arquivo_teste = input('Digite o caminho para o arquivo de teste(ex: test_esrb.csv)\n>')
+    caminho_arquivo_teste = input('Digite o caminho para o arquivo de teste(ex: test_esrb_rating.csv)\n>')
     dados_teste = pd.read_csv(caminho_arquivo_teste)
 
     # 7. Pré-processamento para os dados de teste
@@ -55,7 +56,8 @@ def main():
     nn.train(entradas_normalizadas, rotulos_one_hot, epocas, batch_size, taxa_aprendizado)
 
     # 6. Salvar pesos e bias após o treinamento
-    nn.save_pesos('modelo_treinado.npz')
+    seconds = time.time()
+    nn.save_pesos('modelo_classificacao_multiclasse-{}.npz'.format(time.ctime(seconds)))
 
     # 7. Avaliar o modelo com os dados de teste após o treinamento
     #precisao_treino = nn.evaluate(entradas_normalizadas, rotulos_one_hot)
