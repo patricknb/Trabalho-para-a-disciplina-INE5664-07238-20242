@@ -1,6 +1,6 @@
 # rna-2024
 
-Descrição do trabalho: 
+📖 Descrição do trabalho: 
 Este repositório contém o projeto final da disciplina de Redes Neurais, cujo objetivo é implementar, em Python, uma rede neural artificial (RNA) do zero, utilizando apenas recursos de baixo nível.
 
 A implementação segue os princípios teóricos e matemáticos das RNAs e inclui:
@@ -25,9 +25,9 @@ O repositório inclui o código-fonte organizado, datasets utilizados, e noteboo
 - Patrick do Nascimento Bueno (20100864)
 
 📚 Requisitos de uso:
-Esta implementação faz uso das bibliotecas Numpy e Pandas para o processamento dos dados
+- Esta implementação faz uso das bibliotecas Numpy e Pandas para o processamento dos dados
 
-Como usar:
+💻 Como usar:
 1. instale todas os requisitos do projeto
 2. Inicie o script main.py
 3. Siga os passos informados no terminal
