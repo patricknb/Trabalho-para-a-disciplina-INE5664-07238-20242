@@ -72,33 +72,33 @@ class RedeNeural:
         return y_pred
 
     # Backpropagation
-    def backpropagate(self, X, y, learning_rate):
+    def backpropagate(self, X, y, taxa_aprendizado):
         m = X.shape[0]
         
         # Gradiente da camada de saída
         gradiente_saida = self.activations[-1] - y
         
         # Atualizar pesos e bias da camada de saída
-        self.pesos[-1] -= np.dot(self.activations[-2].T, gradiente_saida) * learning_rate / m
-        self.biases[-1] -= np.sum(gradiente_saida, axis=0, keepdims=True) * learning_rate / m
+        self.pesos[-1] -= np.dot(self.activations[-2].T, gradiente_saida) * taxa_aprendizado / m
+        self.biases[-1] -= np.sum(gradiente_saida, axis=0, keepdims=True) * taxa_aprendizado / m
         
         # Propagar os gradientes pelas camadas ocultas
         gradiente = gradiente_saida
         for i in range(len(self.camadas_ocultas) - 1, -1, -1):
             gradiente = np.dot(gradiente, self.pesos[i+1].T) * self.relu_derivada(self.z_values[i])
             if i > 0:
-                self.pesos[i] -= np.dot(self.activations[i-1].T, gradiente) * learning_rate / m
-                self.biases[i] -= np.sum(gradiente, axis=0, keepdims=True) * learning_rate / m
+                self.pesos[i] -= np.dot(self.activations[i-1].T, gradiente) * taxa_aprendizado / m
+                self.biases[i] -= np.sum(gradiente, axis=0, keepdims=True) * taxa_aprendizado / m
             else:
-                self.pesos[i] -= np.dot(X.T, gradiente) * learning_rate / m
-                self.biases[i] -= np.sum(gradiente, axis=0, keepdims=True) * learning_rate / m
+                self.pesos[i] -= np.dot(X.T, gradiente) * taxa_aprendizado / m
+                self.biases[i] -= np.sum(gradiente, axis=0, keepdims=True) * taxa_aprendizado / m
         
         # Verificando o valor do gradiente para debugging
         if np.any(np.isnan(self.pesos[0])) or np.any(np.isnan(self.biases[0])):
             print("NaN encontrado nos pesos ou bias")
 
     # Treinamento da rede neural
-    def train(self, X, y, epocas, batch_size, learning_rate):
+    def train(self, X, y, epocas, batch_size, taxa_aprendizado):
         for epoca in range(epocas):
             for i in range(0, len(X), batch_size):
                 X_batch = X[i:i+batch_size]
@@ -111,7 +111,7 @@ class RedeNeural:
                 custo = self.cross_entropy(y_pred, y_batch)
                 
                 # Backpropagation
-                self.backpropagate(X_batch, y_batch, learning_rate)
+                self.backpropagate(X_batch, y_batch, taxa_aprendizado)
             
             if epoca % 10 == 0:
                 print(f'Época {epoca}, Custo: {custo:.4f}')
@@ -147,8 +147,8 @@ nn = RedeNeural(tamanho_entrada, camadas_ocultas, tamanho_saida)
 # 6. Treinamento da rede neural
 epocas = 100
 batch_size = 32
-learning_rate = 0.01
-nn.train(entradas_normalizadas, rotulos_one_hot, epocas, batch_size, learning_rate)
+taxa_aprendizado = 0.01
+nn.train(entradas_normalizadas, rotulos_one_hot, epocas, batch_size, taxa_aprendizado)
 
 # 7. Avaliação
 precisao = nn.evaluate(entradas_normalizadas, rotulos_one_hot)
@@ -216,25 +216,25 @@ class RedeNeural:
         
         return y_pred
 
-    def backpropagate(self, X, y, learning_rate):
+    def backpropagate(self, X, y, taxa_aprendizado):
         m = X.shape[0]
         
         gradiente_saida = self.activations[-1] - y
         
-        self.pesos[-1] -= np.dot(self.activations[-2].T, gradiente_saida) * learning_rate / m
-        self.biases[-1] -= np.sum(gradiente_saida, axis=0, keepdims=True) * learning_rate / m
+        self.pesos[-1] -= np.dot(self.activations[-2].T, gradiente_saida) * taxa_aprendizado / m
+        self.biases[-1] -= np.sum(gradiente_saida, axis=0, keepdims=True) * taxa_aprendizado / m
         
         gradiente = gradiente_saida
         for i in range(len(self.camadas_ocultas) - 1, -1, -1):
             gradiente = np.dot(gradiente, self.pesos[i+1].T) * self.relu_derivada(self.z_values[i])
             if i > 0:
-                self.pesos[i] -= np.dot(self.activations[i-1].T, gradiente) * learning_rate / m
-                self.biases[i] -= np.sum(gradiente, axis=0, keepdims=True) * learning_rate / m
+                self.pesos[i] -= np.dot(self.activations[i-1].T, gradiente) * taxa_aprendizado / m
+                self.biases[i] -= np.sum(gradiente, axis=0, keepdims=True) * taxa_aprendizado / m
             else:
-                self.pesos[i] -= np.dot(X.T, gradiente) * learning_rate / m
-                self.biases[i] -= np.sum(gradiente, axis=0, keepdims=True) * learning_rate / m
+                self.pesos[i] -= np.dot(X.T, gradiente) * taxa_aprendizado / m
+                self.biases[i] -= np.sum(gradiente, axis=0, keepdims=True) * taxa_aprendizado / m
 
-    def train(self, X, y, epocas, batch_size, learning_rate):
+    def train(self, X, y, epocas, batch_size, taxa_aprendizado):
         for epoca in range(epocas):
             for i in range(0, len(X), batch_size):
                 X_batch = X[i:i+batch_size]
@@ -242,7 +242,7 @@ class RedeNeural:
                 
                 y_pred = self.forward(X_batch)
                 custo = self.cross_entropy(y_pred, y_batch)
-                self.backpropagate(X_batch, y_batch, learning_rate)
+                self.backpropagate(X_batch, y_batch, taxa_aprendizado)
             
             if epoca % 10 == 0 or epoca == epocas-1:
                 # Calcular a precisão nos dados de treino durante o treinamento
@@ -265,6 +265,7 @@ class RedeNeural:
                 pesos_2=self.pesos[2], biases_2=self.biases[2])
 
     # Carregar pesos e bias
+    # talvez delete, não estou usando :x
     def load_pesos(self, file_path):
         npzfile = np.load(file_path)
         # Carregar pesos e bias para cada camada com nomes explícitos

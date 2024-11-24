@@ -51,8 +51,8 @@ def main():
     # 5. Treinamento da rede neural
     epocas = int(input('Digite a quantidade de epocas desejada.\n>'))
     batch_size = 32 #32 funcionou, preciso checar se funciona com outro data base :\
-    learning_rate = float(input('Digite a taxa de aprendizado desejada(ex: 0.01).\n>'))
-    nn.train(entradas_normalizadas, rotulos_one_hot, epocas, batch_size, learning_rate)
+    taxa_aprendizado = float(input('Digite a taxa de aprendizado desejada(ex: 0.01).\n>'))
+    nn.train(entradas_normalizadas, rotulos_one_hot, epocas, batch_size, taxa_aprendizado)
 
     # 6. Salvar pesos e bias após o treinamento
     nn.save_pesos('modelo_treinado.npz')
