@@ -87,15 +87,51 @@ class Classificacao_multiclasse:
             
             if epoca % 10 == 0 or epoca == epocas-1:
                 # Calcular a precisão nos dados de treino durante o treinamento
-                treino_precisao = self.evaluate(X, y)
-                print(f'Época {epoca}, Custo: {custo:.4f}, Precisão no treino: {treino_precisao:.2%}')
+                metrics = self.evaluate(X, y)
+                print(f'Época {epoca}, Custo: {custo:.4f}, Acurácia: {metrics['Accuracy']:.2%} Precisão no treino: {metrics['Precision']:.2%}, Recall: {metrics['Recall']:.2%}, F1-score: {metrics['F1-Score']:.2%}')
     
     def evaluate(self, X, y):
-        y_pred = self.forward(X)
+        #acuracia old
+        '''y_pred = self.forward(X)
         predictions = np.argmax(y_pred, axis=1)
         true_labels = np.argmax(y, axis=1)
         accuracy = np.mean(predictions == true_labels)
-        return accuracy
+        return accuracy'''
+        y_pred = self.forward(X)  # Probabilidades previstas
+        predictions = np.argmax(y_pred, axis=1)  # Classes previstas
+        true_labels = np.argmax(y, axis=1)  # Classes reais
+
+        # Inicializar variáveis para métricas
+        classes = np.unique(true_labels)
+        precisions, recalls, f1_scores = [], [], []
+
+        for c in classes:
+            TP = np.sum((predictions == c) & (true_labels == c))  # Verdadeiros Positivos para a classe c
+            FP = np.sum((predictions == c) & (true_labels != c))  # Falsos Positivos para a classe c
+            FN = np.sum((predictions != c) & (true_labels == c))  # Falsos Negativos para a classe c
+
+            precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+            recall = TP / (TP + FN) if (TP + FN) > 0 else 0
+            f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+
+            precisions.append(precision)
+            recalls.append(recall)
+            f1_scores.append(f1_score)
+
+        # Cálculo das médias (média macro)
+        avg_precision = np.mean(precisions)
+        avg_recall = np.mean(recalls)
+        avg_f1_score = np.mean(f1_scores)
+        accuracy = np.mean(predictions == true_labels)
+
+        # Retorno como dicionário
+        metrics = {
+            'Accuracy': accuracy,
+            'Precision': avg_precision,
+            'Recall': avg_recall,
+            'F1-Score': avg_f1_score
+        }
+        return metrics
     
     # Salvar pesos e bias
     def save_pesos(self, file_path):

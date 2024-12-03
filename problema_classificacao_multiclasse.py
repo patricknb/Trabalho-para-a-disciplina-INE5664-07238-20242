@@ -50,7 +50,7 @@ rotulos_teste_one_hot = pd.get_dummies(rotulos_teste).values
 # 5. Treinamento da rede neural
 epocas = 5000
 batch_size = len(entradas_normalizadas)#32 funcionou como um min, preciso checar se funciona com outro data base :\
-taxa_aprendizado = 0.001
+taxa_aprendizado = 0.01
 nn.train(entradas_normalizadas, rotulos_one_hot, epocas, batch_size, taxa_aprendizado)
 
 # 6. Salvar pesos e bias após o treinamento
@@ -61,6 +61,13 @@ nn.save_pesos('modelo_classificacao_multiclasse-{}.npz'.format(time.ctime(second
 #precisao_treino = nn.evaluate(entradas_normalizadas, rotulos_one_hot)
 #print(f'Precisão nos dados de treino: {precisao_treino:.2%}')
 print('==Teste==')
-precisao_teste = nn.evaluate(entradas_teste_normalizadas, rotulos_teste_one_hot)
-print(f'Precisão nos dados de teste: {precisao_teste:.2%}')
+'''precisao_teste = nn.evaluate(entradas_teste_normalizadas, rotulos_teste_one_hot)
+print(f'Precisão nos dados de teste: {precisao_teste:.2%}')'''
+
+metrics = nn.evaluate(entradas_teste_normalizadas, rotulos_teste_one_hot)
+
+print(f"Acurácia: {metrics['Accuracy']:.2%}")
+print(f"Precisão: {metrics['Precision']:.2%}")
+print(f"Recall: {metrics['Recall']:.2%}")
+print(f"F1-Score: {metrics['F1-Score']:.2%}")
 
