@@ -14,7 +14,7 @@ A implementação segue os princípios teóricos e matemáticos das RNAs e inclu
 Além disso, foram desenvolvidos três modelos de predição utilizando conjuntos de dados públicos:
 
     Classificação Binária
-    Classificação Multiclasse
+    Classificação Multiclasse - https://www.kaggle.com/datasets/imohtn/video-games-rating-by-esrb
     Regressão
 
 O repositório inclui o código-fonte organizado, datasets utilizados, e notebooks Jupyter documentados para demonstrar o fluxo de treinamento e avaliação do modelo treinado.
