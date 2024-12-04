@@ -13,7 +13,7 @@ A implementação segue os princípios teóricos e matemáticos das RNAs e inclu
 
 Além disso, foram desenvolvidos três modelos de predição utilizando conjuntos de dados públicos:
 
-    Classificação Binária
+    Classificação Binária - ?
     Classificação Multiclasse - https://www.kaggle.com/datasets/imohtn/video-games-rating-by-esrb
     Regressão - https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression    
 
@@ -27,8 +27,6 @@ O repositório inclui o código-fonte organizado, datasets utilizados, e noteboo
 - Esta implementação faz uso das bibliotecas Numpy e Pandas para o processamento dos dados
 
 💻 Como usar:
-1. instale todas os requisitos do projeto
-2. Inicie o script main.py
-3. Siga os passos informados no terminal
-4. ???
-5. Profit
+1. instale todos os requisitos do projeto
+2. Altere os valores dos parametros em algum dos arquivos de problema(problema_classificacao_multiclasse, problema_regressao, ...) e execute ele
+
