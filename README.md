@@ -15,12 +15,11 @@ Além disso, foram desenvolvidos três modelos de predição utilizando conjunto
 
     Classificação Binária
     Classificação Multiclasse - https://www.kaggle.com/datasets/imohtn/video-games-rating-by-esrb
-    Regressão
+    Regressão - https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression    
 
 O repositório inclui o código-fonte organizado, datasets utilizados, e notebooks Jupyter documentados para demonstrar o fluxo de treinamento e avaliação do modelo treinado.
 
 💡 Integrantes:
-- Carlos Eduardo da Silva Aranha (20103075)
 - Fernando Carlos Pereira (16105548)
 - Patrick do Nascimento Bueno (20100864)
 
