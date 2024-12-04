@@ -1,98 +1,127 @@
 import numpy as np
+import pandas as pd
+import time
 
+# ==================== Classe Regressão Neural ====================
 class Regressao:
-    def __init__(self, input_size, hidden_layers, output_size):
-        self.layer_sizes = [input_size] + hidden_layers + [output_size]
-        self.num_layers = len(self.layer_sizes) - 1
+    def __init__(self, entradas_tamanho, camadas_ocultas, saidas_tamanho):
+        # Define as dimensões das camadas da rede neural
+        self.tamanhos_camadas = [entradas_tamanho] + camadas_ocultas + [saidas_tamanho]
+        self.num_camadas = len(self.tamanhos_camadas) - 1
 
-        self.weights = [
-            np.random.randn(self.layer_sizes[i], self.layer_sizes[i + 1]) * np.sqrt(2. / self.layer_sizes[i])
-            for i in range(self.num_layers)
+        # Inicializa pesos e vieses aleatoriamente
+        self.pesos = [
+            np.random.randn(self.tamanhos_camadas[i], self.tamanhos_camadas[i + 1]) * np.sqrt(2. / self.tamanhos_camadas[i])
+            for i in range(self.num_camadas)
         ]
-        self.biases = [
-            np.zeros((1, self.layer_sizes[i + 1]))
-            for i in range(self.num_layers)
+        self.vieses = [
+            np.zeros((1, self.tamanhos_camadas[i + 1]))
+            for i in range(self.num_camadas)
         ]
     
+    # Função de ativação ReLU (Retifica valores negativos para zero)
     def relu(self, x):
         return np.maximum(0, x)
 
+    # Derivada da função ReLU
     def relu_derivada(self, x):
         return (x > 0).astype(int)
 
-    def forward(self, X):
-        self.activations = [X]
-        self.z_values = []
+    # Propagação para frente (cálculo das saídas)
+    def propagacao_frente(self, entradas):
+        self.ativacoes = [entradas]
+        self.valores_z = []
 
-        for i in range(self.num_layers):
-            z = np.dot(self.activations[-1], self.weights[i]) + self.biases[i]
-            self.z_values.append(z)
+        for i in range(self.num_camadas):
+            z = np.dot(self.ativacoes[-1], self.pesos[i]) + self.vieses[i]
+            self.valores_z.append(z)
 
-            if i == self.num_layers - 1:
-                a = z  # Sem ativação na camada de saída para regressão/identidade
+            if i == self.num_camadas - 1:  # Camada de saída
+                a = z  # Função identidade
             else:
                 a = self.relu(z)
-            self.activations.append(a)
-        return self.activations[-1]
+            self.ativacoes.append(a)
+        return self.ativacoes[-1]
 
-    def compute_loss(self, y_pred, y_true):
-        """
-        Calcula o erro quadrático médio (MSE).
-        """
-        return np.mean((y_pred - y_true) ** 2)
+    # Função de perda: Erro Quadrático Médio (MSE)
+    def calcular_mse(self, previsoes, verdadeiros):
+        return np.mean((previsoes - verdadeiros) ** 2)
 
-    def compute_rmse(self, y_pred, y_true):
-        """
-        Calcula o erro quadrático médio (RMSE).
-        """
-        mse = self.compute_loss(y_pred, y_true)
+    # Cálculo do RMSE (raiz do MSE)
+    def calcular_rmse(self, previsoes, verdadeiros):
+        mse = self.calcular_mse(previsoes, verdadeiros)
         return np.sqrt(mse)
 
-    def backward(self, y_true):
-        m = y_true.shape[0]
-        y_true = y_true.reshape(-1, 1)
+    # Retropropagação para ajustar pesos e vieses
+    def retropropagacao(self, verdadeiros):
+        m = verdadeiros.shape[0]
+        verdadeiros = verdadeiros.reshape(-1, 1)
 
-        d_activations = [(self.activations[-1] - y_true) / m]
+        gradientes_ativacoes = [(self.ativacoes[-1] - verdadeiros) / m]
 
-        for i in reversed(range(self.num_layers)):
+        for i in reversed(range(self.num_camadas)):
             dz = (
-                d_activations[0]
-                if i == self.num_layers - 1
-                else d_activations[0] * self.relu_derivada(self.z_values[i])
+                gradientes_ativacoes[0]
+                if i == self.num_camadas - 1
+                else gradientes_ativacoes[0] * self.relu_derivada(self.valores_z[i])
             )
-            dw = np.dot(self.activations[i].T, dz)
+            dw = np.dot(self.ativacoes[i].T, dz)
             db = np.sum(dz, axis=0, keepdims=True)
 
-            dw += 2 * 0.01 * self.weights[i]  # Regularização L2
+            dw += 2 * 0.01 * self.pesos[i]  # Regularização L2
 
             if i > 0:
-                d_activations.insert(0, np.dot(dz, self.weights[i].T))
+                gradientes_ativacoes.insert(0, np.dot(dz, self.pesos[i].T))
 
-            self.weights[i] -= self.learning_rate * dw
-            self.biases[i] -= self.learning_rate * db
+            self.pesos[i] -= self.taxa_aprendizado * dw
+            self.vieses[i] -= self.taxa_aprendizado * db
 
-    def train(self, X, y, epochs, learning_rate):
-        self.learning_rate = learning_rate
-        for epoch in range(epochs):
-            y_pred = self.forward(X)
-            loss = self.compute_loss(y_pred, y)
-            self.backward(y)
+    # Treinamento do modelo
+    def treinar(self, entradas, verdadeiros, epocas, taxa_aprendizado):
+        self.taxa_aprendizado = taxa_aprendizado
+        for epoca in range(epocas):
+            previsoes = self.propagacao_frente(entradas)
+            rmse = self.calcular_rmse(previsoes, verdadeiros)
+            erro_percentual_medio = np.mean(np.abs(previsoes - verdadeiros) / np.maximum(np.abs(verdadeiros), 1e-10)) * 100
 
-            if epoch % 100 == 0 or epoch == epochs - 1:
-                rmse = self.compute_rmse(y_pred, y)
-                print(f"Epoca {epoch}: RMSE = {rmse:.4f}")
+            self.retropropagacao(verdadeiros)
 
-    def evaluate(self, X, y):
-        y_pred = self.forward(X)
-        rmse = self.compute_rmse(y_pred, y)
-        return rmse
+            if epoca % 10 == 0 or epoca == epocas - 1:
+                print(f"Época {epoca} - RMSE: {rmse:.4f}, Erro percentual médio: {erro_percentual_medio:.2f}%")
 
-    def save_pesos(self, filename):
-        weights_dict = {f"weight_{i}": w for i, w in enumerate(self.weights)}
-        biases_dict = {f"bias_{i}": b for i, b in enumerate(self.biases)}
-        np.savez(filename, **weights_dict, **biases_dict)
+    # Avaliação do modelo
+    def avaliar(self, entradas, verdadeiros):
+        previsoes = self.propagacao_frente(entradas)
+        rmse = self.calcular_rmse(previsoes, verdadeiros)
+        erro_percentual_medio = np.mean(np.abs(previsoes - verdadeiros) / np.maximum(np.abs(verdadeiros), 1e-10)) * 100
+        print(f"RMSE: {rmse:.4f}")
+        print(f"Erro percentual médio: {erro_percentual_medio:.2f}%")
+        return rmse, erro_percentual_medio
 
-    def load_pesos(self, filename):
-        data = np.load(filename)
-        self.weights = [data[f"weight_{i}"] for i in range(len(self.weights))]
-        self.biases = [data[f"bias_{i}"] for i in range(len(self.biases))]
+# ==================== Normalização de Dados ====================
+def normalizar_dados(entradas):
+    desvio_padrao = entradas.std(axis=0)
+    desvio_padrao[desvio_padrao == 0] = 1
+    return (entradas - entradas.mean(axis=0)) / desvio_padrao
+
+# ==================== Carregamento e Execução ====================
+caminho_treino = './data/train_student_performance.csv'
+caminho_teste = './data/test_student_performance.csv'
+
+# Carregar dados
+dados_treino = pd.read_csv(caminho_treino)
+X_treino = normalizar_dados(dados_treino.iloc[:, :-1].values)
+y_treino = dados_treino.iloc[:, -1].values
+
+dados_teste = pd.read_csv(caminho_teste)
+X_teste = normalizar_dados(dados_teste.iloc[:, :-1].values)
+y_teste = dados_teste.iloc[:, -1].values
+
+# Configuração da rede
+rede = Regressao(entradas_tamanho=X_treino.shape[1], camadas_ocultas=[5, 5, 5], saidas_tamanho=1)
+
+# Treinamento
+rede.treinar(X_treino, y_treino, epocas=200, taxa_aprendizado=0.01)
+
+# Avaliação
+rede.avaliar(X_teste, y_teste)

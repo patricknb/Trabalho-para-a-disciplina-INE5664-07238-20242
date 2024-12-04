@@ -1,11 +1,7 @@
 import numpy as np
-import pandas as pd
-import time
 
-# ==================== Classe Classificação Multiclasse ====================
-class ClassificacaoMulticlasse:
+class Classificacao_multiclasse:
     def __init__(self, tamanho_entrada, camadas_ocultas, tamanho_saida):
-        # Inicializa as camadas da rede neural
         self.tamanho_entrada = tamanho_entrada
         self.camadas_ocultas = camadas_ocultas
         self.tamanho_saida = tamanho_saida
@@ -13,7 +9,7 @@ class ClassificacaoMulticlasse:
         self.pesos = []
         self.biases = []
         
-        # Inicialização das camadas com valores aleatórios
+        # Inicialização das camadas
         self.pesos.append(np.random.randn(tamanho_entrada, camadas_ocultas[0]) * np.sqrt(2. / tamanho_entrada))
         self.biases.append(np.zeros((1, camadas_ocultas[0])))
         
@@ -31,12 +27,10 @@ class ClassificacaoMulticlasse:
         return (x > 0).astype(int)
 
     def softmax(self, x):
-        # Função softmax para ativação da camada de saída
         exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))
         return exp_x / np.sum(exp_x, axis=1, keepdims=True)
     
     def cross_entropy(self, y_pred, y_true):
-        # Função de perda: Entropia cruzada
         m = y_true.shape[0]
         epsilon = 1e-8  # Para evitar log(0)
         return -np.sum(y_true * np.log(y_pred + epsilon)) / m
@@ -67,12 +61,11 @@ class ClassificacaoMulticlasse:
         m = X.shape[0]
         
         gradiente_saida = self.activations[-1] - y
-        # Atualização dos pesos e vieses na camada de saída
+        
         self.pesos[-1] -= np.dot(self.activations[-2].T, gradiente_saida) * taxa_aprendizado / m
         self.biases[-1] -= np.sum(gradiente_saida, axis=0, keepdims=True) * taxa_aprendizado / m
         
         gradiente = gradiente_saida
-        # Retropropagação para as camadas ocultas
         for i in range(len(self.camadas_ocultas) - 1, -1, -1):
             gradiente = np.dot(gradiente, self.pesos[i+1].T) * self.relu_derivada(self.z_values[i])
             if i > 0:
@@ -92,13 +85,18 @@ class ClassificacaoMulticlasse:
                 custo = self.cross_entropy(y_pred, y_batch)
                 self.backpropagate(X_batch, y_batch, taxa_aprendizado)
             
-            if epoca % 100 == 0 or epoca == epocas-1:
+            if epoca % 10 == 0 or epoca == epocas-1:
                 # Calcular a precisão nos dados de treino durante o treinamento
                 metrics = self.evaluate(X, y)
-                print(f'Época {epoca}, Custo: {custo:.4f}, Acurácia: {metrics["Accuracy"]:.2%} Precisão no treino: {metrics["Precision"]:.2%}, Recall: {metrics["Recall"]:.2%}, F1-score: {metrics["F1-Score"]:.2%}')
+                print(f'Época {epoca}, Custo: {custo:.4f}, Acurácia: {metrics['Accuracy']:.2%} Precisão no treino: {metrics['Precision']:.2%}, Recall: {metrics['Recall']:.2%}, F1-score: {metrics['F1-Score']:.2%}')
     
     def evaluate(self, X, y):
-        # Avalia a precisão do modelo com métricas adicionais
+        #acuracia old
+        '''y_pred = self.forward(X)
+        predictions = np.argmax(y_pred, axis=1)
+        true_labels = np.argmax(y, axis=1)
+        accuracy = np.mean(predictions == true_labels)
+        return accuracy'''
         y_pred = self.forward(X)  # Probabilidades previstas
         predictions = np.argmax(y_pred, axis=1)  # Classes previstas
         true_labels = np.argmax(y, axis=1)  # Classes reais
@@ -143,60 +141,11 @@ class ClassificacaoMulticlasse:
                 pesos_1=self.pesos[1], biases_1=self.biases[1],
                 pesos_2=self.pesos[2], biases_2=self.biases[2])
 
-# ==================== Funções de Carregamento e Pré-processamento ====================
-def normalizar_dados(entradas):
-    # Normalização: traz os dados para a mesma escala
-    desvio_padrao = entradas.std(axis=0)
-    desvio_padrao[desvio_padrao == 0] = 1  # Evita divisão por zero
-    return (entradas - entradas.mean(axis=0)) / desvio_padrao
+    # Carregar pesos e bias
+    # talvez delete, não estou usando :x
+    def load_pesos(self, file_path):
+        npzfile = np.load(file_path)
+        # Carregar pesos e bias para cada camada com nomes explícitos
+        self.pesos = [npzfile[f'pesos_{i}'] for i in range(len(self.pesos))]
+        self.biases = [npzfile[f'biases_{i}'] for i in range(len(self.biases))]
 
-# ==================== Execução do Modelo ====================
-# 1. Carregar os dados de treinamento
-caminho_arquivo_treino = './data/train_esrb_rating.csv'
-dados = pd.read_csv(caminho_arquivo_treino)
-
-# Separar entradas e rótulos
-entradas = dados.iloc[:, :-1].values  # Todas as colunas, exceto a última
-rotulos = dados.iloc[:, -1].values    # Última coluna (os rótulos de classe)
-
-# 2. Pré-processamento para os dados de treinamento
-entradas_normalizadas = normalizar_dados(entradas)
-rotulos_one_hot = pd.get_dummies(rotulos).values  # One-hot encoding para as classes
-
-# 3. Definir a arquitetura da rede neural
-tamanho_entrada = entradas_normalizadas.shape[1]
-tamanho_saida = rotulos_one_hot.shape[1]
-camadas_ocultas = [10, 10, 10]  # Número de neurônios nas camadas ocultas
-
-# Inicializar a rede neural
-nn = ClassificacaoMulticlasse(tamanho_entrada, camadas_ocultas, tamanho_saida)
-
-# 4. Carregar os dados de teste
-caminho_arquivo_teste = './data/test_esrb_rating.csv'
-dados_teste = pd.read_csv(caminho_arquivo_teste)
-
-# Separar entradas e rótulos para o teste
-entradas_teste = dados_teste.iloc[:, :-1].values
-rotulos_teste = dados_teste.iloc[:, -1].values
-
-# 5. Pré-processamento para os dados de teste
-entradas_teste_normalizadas = normalizar_dados(entradas_teste)
-rotulos_teste_one_hot = pd.get_dummies(rotulos_teste).values
-
-# 6. Treinamento do modelo
-epocas = 5000
-batch_size = len(entradas_normalizadas)  # Usando todos os dados para o treinamento
-taxa_aprendizado = 0.01
-nn.train(entradas_normalizadas, rotulos_one_hot, epocas, batch_size, taxa_aprendizado)
-
-# 7. Salvar os pesos após o treinamento
-seconds = time.time()
-nn.save_pesos(f'modelo_classificacao_multiclasse-{time.ctime(seconds)}.npz')
-
-# 8. Avaliar o modelo com os dados de teste
-metrics = nn.evaluate(entradas_teste_normalizadas, rotulos_teste_one_hot)
-print('==Teste==')
-print(f"Acurácia: {metrics['Accuracy']:.2%}")
-print(f"Precisão: {metrics['Precision']:.2%}")
-print(f"Recall: {metrics['Recall']:.2%}")
-print(f"F1-Score: {metrics['F1-Score']:.2%}")

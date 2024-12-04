@@ -20,7 +20,7 @@ entradas_normalizadas = normalize_data(entradas)
 # 3. Configuração da rede neural
 tamanho_entrada = entradas_normalizadas.shape[1]
 #tamanho_saida = 1  # Problema de regressão com uma única saída
-camadas_ocultas = [5] * 5
+camadas_ocultas = [3] * 3
 nn = Regressao(tamanho_entrada, camadas_ocultas, 1)
 
 # 4. Carregar os dados de teste
@@ -44,5 +44,4 @@ nn.save_pesos(f'modelo_regressao-{time.ctime(seconds)}.npz')
 
 # 8. Avaliar o modelo com os dados de teste
 print('==Teste==')
-mse = nn.evaluate(entradas_teste_normalizadas, rotulos_teste)
-print(f"RMSE: {mse:.4f}")
+rmse = nn.evaluate(entradas_teste_normalizadas, rotulos_teste)
