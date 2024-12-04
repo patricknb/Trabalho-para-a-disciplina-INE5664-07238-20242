@@ -1,4 +1,4 @@
-# INE5664-07238 (20242) - Aprendizado de Máquina: Projeto Final RNA 2024
+# Aprendizado de Máquina: Projeto Final RNA 2024
 
 📖 Descrição do trabalho: 
 Este repositório contém o projeto final da disciplina de Redes Neurais, cujo objetivo é implementar, em Python, uma rede neural artificial (RNA) do zero, utilizando apenas recursos de baixo nível.
