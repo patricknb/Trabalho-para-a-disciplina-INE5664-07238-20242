@@ -1,5 +1,6 @@
 Aprendizado de Máquina: Projeto Final - Rede Neural Artificial (RNA) 2024
-📖 Descrição do Projeto
+
+**📖 Descrição do Projeto**
 
 Este repositório contém o projeto final da disciplina de Redes Neurais, cujo objetivo é implementar, em Python, uma Rede Neural Artificial (RNA) do zero, utilizando apenas recursos de baixo nível. A implementação foi desenvolvida com base nos conceitos teóricos e matemáticos abordados em aula.
 Funcionalidades Implementadas
@@ -12,7 +13,7 @@ A RNA implementada inclui os requisitos minimos indicados abaixo:
     Algoritmo de retropropagação (backpropagation): cálculo eficiente do gradiente.
     Otimização por gradiente descendente: ajuste iterativo dos pesos.
 
-Modelos Desenvolvidos
+**Modelos Desenvolvidos**
 
 Foram treinados três modelos de predição, utilizando conjuntos de dados públicos, para diferentes tarefas:
 
@@ -26,12 +27,13 @@ Foram treinados três modelos de predição, utilizando conjuntos de dados públ
     Dataset: Home Value Insights
 
 Os modelos foram avaliados com métricas apropriadas, garantindo erros no conjunto de teste inferiores a 50%.
-💡 Integrantes
+
+**💡 Integrantes**
 
     Fernando Carlos Pereira (16105548)
     Patrick do Nascimento Bueno (20100864)
 
-📚 Requisitos de Uso
+**📚 Requisitos de Uso**
 
 Para executar o projeto, é necessário ter instalado:
 
@@ -39,7 +41,8 @@ Para executar o projeto, é necessário ter instalado:
     Bibliotecas: NumPy, Pandas, scikit-learn, Matplotlib
 
 
-💻 Como Usar
+**💻 Como Usar**
+
 Rodando os Scripts
 
     Edite os parâmetros no arquivo correspondente à tarefa desejada:
@@ -56,8 +59,9 @@ Usando os Notebooks
     Carregue os arquivos de datasets na mesma pasta.
     Execute as células do notebook para treinar e avaliar os modelos.
 
-🗂 Estrutura do Repositório
-
+**🗂 Estrutura do Repositório**
+       
+        
         /
         ├── __pycache__          
         ├── data/                # Conjuntos de datasets utilizados
@@ -74,8 +78,7 @@ Usando os Notebooks
         ├── regressao.py                # Implementação do treino e teste do modelo de regressão 
         └── README.md                # Documentação
 
-
-📝 Observações Importantes
+**📝 Observações Importantes**
 
     Certifique-se de utilizar os datasets disponibilizados na pasta /data ou mencionados acima.
     Para dúvidas ou problemas, entre em contato com os integrantes do projeto.
