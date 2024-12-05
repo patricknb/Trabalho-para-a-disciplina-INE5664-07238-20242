@@ -29,5 +29,7 @@ O repositório inclui o código-fonte organizado, datasets utilizados, e noteboo
 💻 Como usar:
 1. instale todos os requisitos do projeto
 2. Altere os valores dos parametros em algum dos arquivos de problema(problema_classificacao_multiclasse, problema_regressao, ...) e execute ele
+
 ou
+
 1. baixe os notebooks e abra eles no google colab(lembre de baixar os arquivos usados para o treinamento) 
