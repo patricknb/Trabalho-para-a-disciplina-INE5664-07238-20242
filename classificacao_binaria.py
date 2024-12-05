@@ -99,18 +99,22 @@ dados = pd.read_csv(caminho_arquivo)
 
 # Fonte: https://www.kaggle.com/datasets/uom190346a/water-quality-and-potability
 #:: Variáveis independentes:
-#   1. pH: The pH level of the water.
-#   2. Hardness: Water hardness, a measure of mineral content.
-#   3. Solids: Total dissolved solids in the water.
-#   4. Chloramines: Chloramines concentration in the water.
-#   5. Sulfate: Sulfate concentration in the water.
-#   6. Conductivity: Electrical conductivity of the water.
-#   7. Organic carbon: Organic carbon content in the water.
-#   8. Trihalomethanes: Trihalomethanes concentration in the water.
-#   9. Turbidity: Turbidity level, a measure of water clarity.
-#   10. Potability: Target variable; indicates water
+#   1. pH: nível de pH da água.
+#   2. Hardness: dureza da água, uma medida do conteúdo mineral.
+#   3. Solids: total de sólidos dissolvidos na água.
+#   4. Chloramines: concentração de cloraminas na água.
+#   5. Sulfate: concentração de sulfato na água.
+#   6. Conductivity: condutividade elétrica da água.
+#   7. Organic carbon: conteúdo de carbono orgânico na água.
+#   8. Trihalomethanes: concentração de trihalometanos na água.
+#   9. Turbidity: nível de turbidez, uma medida da clareza da água.
 #:: Variável dependente:
-#   Potability: Variável alvo; indica potabilidade da água com valores 1 (potável) e 0 (não potável).
+#   10. Potability: variável alvo; indica potabilidade da água com valores 1 (potável) e 0 (não potável).
+
+# Configurações para evitar quebras de linha ao exibir matrizes (arrays)
+pd.set_option("display.max_columns", None)
+pd.set_option("display.width", 1000)
+np.set_printoptions(linewidth=np.inf)
 
 print("\nTamanho original do conjunto de dados (linhas, colunas): ", dados.shape)
 
@@ -119,8 +123,8 @@ dados.dropna(inplace=True)
 
 print("\nTamanho após remoção de linhas com valores nulos (linhas, colunas): ", dados.shape)
 
-# 10 primeiras linhas do conjunto de dados
-print("\n", dados.head(10))
+# Primeiros 10 registros do conjunto de dados
+print("\n Primeiros 10 registros (matriz 10x10) do conjunto de dados:\n", dados.head(10))
 
 # Separa o conjunto entre variáveis de entrada/independentes (X) e variável alvo/dependente (y)
 X = dados.drop(columns="Potability").values
@@ -130,11 +134,8 @@ y = dados["Potability"].values.reshape(-1, 1)
 normalizador = StandardScaler()
 X = normalizador.fit_transform(X)
 
-# Divisão dos dados entre treino e teste na proporção de 90/10
-X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.10, random_state=777)
-
-# Configura o NumPy para evitar quebras de linha ao exibir arrays
-np.set_printoptions(linewidth=np.inf)
+# Divisão dos dados entre treino e teste na proporção de 85/15
+X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.15, random_state=777)
 
 print("\nPrimeiras 10 linhas de X_treino (conjunto de TREINO), de um total de ", X_treino.shape[0], " linhas, seguidas pelo vetor de variáveis dependentes (y_treino):")
 print(X_treino[:10])
@@ -148,7 +149,7 @@ print(y_teste[:10])
 rede_Class_Binaria = ClassificacaoBinaria(X_treino.shape[1], 10, 1, 0.01)
 
 # Treinamento da Rede Neural
-perdas = rede_Class_Binaria.treinar(X_treino, y_treino, epocas=4001)
+perdas = rede_Class_Binaria.treinar(X_treino, y_treino, epocas=5001)
 
 # Avaliação da Rede Neural
 y_predito = rede_Class_Binaria.prever(X_teste)
@@ -159,9 +160,26 @@ for yreal, ypred in zip(y_teste, y_predito):
     if yreal == ypred: 
         previsoes_corretas += 1
 
-# Calcula a acurácia do modelo
+print("\n:: Métricas de Avaliação do Modelo:")
+# Acurácia
 acuracia = previsoes_corretas / len(y_teste)
-print("\n:: Acurácia do modelo: {:.4f}".format(acuracia))
+print(" - Acurácia: {:.4f}".format(acuracia))
+
+# Precisão
+vp = np.sum((y_teste == 1) & (y_predito == 1))  # Verdadeiros positivos
+fp = np.sum((y_teste == 0) & (y_predito == 1))  # Falsos positivos
+precisao = vp / (vp + fp) if (vp + fp) != 0 else 0
+print(" - Precisão: {:.4f}".format(precisao))
+
+# Recall
+vp = np.sum((y_teste == 1) & (y_predito == 1))  # Verdadeiros positivos
+fn = np.sum((y_teste == 1) & (y_predito == 0))  # Falsos negativos
+recall = vp / (vp + fn) if (vp + fn) != 0 else 0
+print(" - Recall: {:.4f}".format(recall))
+
+# F1-Score
+f1_score = 2 * (precisao * recall) / (precisao + recall) if (precisao + recall) != 0 else 0
+print(" - F1-Score: {:.4f}".format(f1_score))
 
 # Exibe a curva de perda
 plt.plot(perdas)
@@ -169,5 +187,4 @@ plt.title("Perda ao longo das épocas")
 plt.xlabel("Épocas")
 plt.ylabel("Perda")
 plt.show()
-
 print()
