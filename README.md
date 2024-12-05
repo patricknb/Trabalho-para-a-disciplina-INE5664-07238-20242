@@ -15,8 +15,8 @@ Além disso, foram desenvolvidos três modelos de predição utilizando conjunto
 
     Classificação Binária - https://www.kaggle.com/datasets/uom190346a/water-quality-and-potability
     Classificação Multiclasse - https://www.kaggle.com/datasets/imohtn/video-games-rating-by-esrb
-    Regressão - https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression    
-
+    Regressão - https://www.kaggle.com/datasets/prokshitha/home-value-insights
+       
 O repositório inclui o código-fonte organizado, datasets utilizados, e notebooks Jupyter documentados para demonstrar o fluxo de treinamento e avaliação do modelo treinado.
 
 💡 Integrantes:

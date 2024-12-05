@@ -105,8 +105,8 @@ def normalizar_dados(entradas):
     return (entradas - entradas.mean(axis=0)) / desvio_padrao
 
 # ==================== Carregamento e Execução ====================
-caminho_treino = './data/train_student_performance.csv'
-caminho_teste = './data/test_student_performance.csv'
+caminho_treino = './data/train_house_price.csv'
+caminho_teste = './data/test_house_price.csv'
 
 # Carregar dados
 dados_treino = pd.read_csv(caminho_treino)
@@ -118,10 +118,10 @@ X_teste = normalizar_dados(dados_teste.iloc[:, :-1].values)
 y_teste = dados_teste.iloc[:, -1].values
 
 # Configuração da rede
-rede = Regressao(entradas_tamanho=X_treino.shape[1], camadas_ocultas=[5, 5, 5], saidas_tamanho=1)
+rede = Regressao(entradas_tamanho=X_treino.shape[1], camadas_ocultas=[3, 6, 9, 3, 6, 9], saidas_tamanho=1)
 
 # Treinamento
-rede.treinar(X_treino, y_treino, epocas=200, taxa_aprendizado=0.01)
+rede.treinar(X_treino, y_treino, epocas=10000, taxa_aprendizado=0.0001)
 
 # Avaliação
 rede.avaliar(X_teste, y_teste)
