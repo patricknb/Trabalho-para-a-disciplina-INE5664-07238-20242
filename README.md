@@ -1,35 +1,81 @@
-# Aprendizado de Máquina: Projeto Final RNA 2024
+Aprendizado de Máquina: Projeto Final - Rede Neural Artificial (RNA) 2024
+📖 Descrição do Projeto
 
-📖 Descrição do trabalho: 
-Este repositório contém o projeto final da disciplina de Redes Neurais, cujo objetivo é implementar, em Python, uma rede neural artificial (RNA) do zero, utilizando apenas recursos de baixo nível.
+Este repositório contém o projeto final da disciplina de Redes Neurais, cujo objetivo é implementar, em Python, uma Rede Neural Artificial (RNA) do zero, utilizando apenas recursos de baixo nível. A implementação foi desenvolvida com base nos conceitos teóricos e matemáticos abordados em aula.
+Funcionalidades Implementadas
 
-A implementação segue os princípios teóricos e matemáticos das RNAs e inclui:
+A RNA implementada inclui os requisitos minimos indicados abaixo:
 
-    Estrutura da rede (camadas, pesos, etc.);
-    Três funções de ativação;
-    Duas funções de perda;
-    Algoritmo de retropropagação (backpropagate);
-    Otimização por gradiente descendente.
+    Estrutura da rede: suporte para múltiplas camadas e pesos ajustáveis.
+    Funções de ativação: três funções de ativação diferentes.
+    Funções de perda: duas funções de perda distintas.
+    Algoritmo de retropropagação (backpropagation): cálculo eficiente do gradiente.
+    Otimização por gradiente descendente: ajuste iterativo dos pesos.
 
-Além disso, foram desenvolvidos três modelos de predição utilizando conjuntos de dados públicos:
+Modelos Desenvolvidos
 
-    Classificação Binária - https://www.kaggle.com/datasets/uom190346a/water-quality-and-potability
-    Classificação Multiclasse - https://www.kaggle.com/datasets/imohtn/video-games-rating-by-esrb
-    Regressão - https://www.kaggle.com/datasets/prokshitha/home-value-insights
-       
-O repositório inclui o código-fonte organizado, datasets utilizados, e notebooks Jupyter documentados para demonstrar o fluxo de treinamento e avaliação do modelo treinado.
+Foram treinados três modelos de predição, utilizando conjuntos de dados públicos, para diferentes tarefas:
 
-💡 Integrantes:
-- Fernando Carlos Pereira (16105548)
-- Patrick do Nascimento Bueno (20100864)
+    Classificação Binária
+    Dataset: Water Quality and Potability
+    
+    Classificação Multiclasse
+    Dataset: Video Games Rating by ESRB
+    
+    Regressão
+    Dataset: Home Value Insights
 
-📚 Requisitos de uso:
-- Esta implementação faz uso das bibliotecas Numpy, Pandas, sklearn e Matplotlib para o processamento e visualização dos dados
+Os modelos foram avaliados com métricas apropriadas, garantindo erros no conjunto de teste inferiores a 50%.
+💡 Integrantes
 
-💻 Como usar:
-1. instale todos os requisitos do projeto
-2. Altere os valores dos parametros em algum dos arquivos de problema(problema_classificacao_multiclasse, problema_regressao, ...) e execute ele
+    Fernando Carlos Pereira (16105548)
+    Patrick do Nascimento Bueno (20100864)
 
-ou
+📚 Requisitos de Uso
 
-1. baixe os notebooks e abra eles no google colab(lembre de baixar os arquivos usados para o treinamento) 
+Para executar o projeto, é necessário ter instalado:
+
+    Python 3.8+
+    Bibliotecas: NumPy, Pandas, scikit-learn, Matplotlib
+
+
+💻 Como Usar
+Rodando os Scripts
+
+    Edite os parâmetros no arquivo correspondente à tarefa desejada:
+        classificacao_binaria.py
+        classificacao_multiclasse.py
+        regressao.py
+    Execute o script:
+
+    python3 classificacao_binaria.py
+
+Usando os Notebooks
+
+    Faça o download dos notebooks da pasta e abra-os no Google Colab(ou plataforma similar).
+    Carregue os arquivos de datasets na mesma pasta.
+    Execute as células do notebook para treinar e avaliar os modelos.
+
+🗂 Estrutura do Repositório
+
+        /
+        ├── __pycache__          
+        ├── data/                # Conjuntos de datasets utilizados
+        ├── old/                # Implementações anteriores e não funcionais
+        ├── classificacao_binaria.py                 # Implementação do treino e teste de modelo de classificação binária        
+        ├── classificacao_multiclasse.py                # Implementação do treino e teste de modelo de classificação multiclasse
+        ├── funcoes_ativacao_perda.py                # Funções de ativação utilizadas pelo modelo de classificação binária
+        ├── notebook_classificacao_binaria.ipynb                # Notebook com treino e teste de modelo de classificação binária   
+        ├── notebook_classificacao_binaria_com_saidas.ipynb                # Notebook com treino e teste de modelo de classificação binária já executado
+        ├── notebook_classificacao_multiclasse.ipynb                # Notebook com treino e teste de modelo de classificação multiclasse
+        ├── notebook_classificacao_multiclasse_com_saida.ipynb                # Notebook com treino e teste de modelo de classificação multiclasse já executado
+        ├── notebook_regressao.ipynb                # Notebook com treino e teste de modelo de regressão
+        ├── notebook_regressao_com_saida.ipynb                # Notebook com treino e teste de modelo de regressão já executado
+        ├── regressao.py                # Implementação do treino e teste do modelo de regressão 
+        └── README.md                # Documentação
+
+
+📝 Observações Importantes
+
+    Certifique-se de utilizar os datasets disponibilizados na pasta /data ou mencionados acima.
+    Para dúvidas ou problemas, entre em contato com os integrantes do projeto.
