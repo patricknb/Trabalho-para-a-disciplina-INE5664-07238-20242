@@ -24,8 +24,12 @@ O repositório inclui o código-fonte organizado, datasets utilizados, e noteboo
 - Patrick do Nascimento Bueno (20100864)
 
 📚 Requisitos de uso:
-- Esta implementação faz uso das bibliotecas Numpy, Pandas e Matplotlib para o processamento e visualização dos dados
+- Esta implementação faz uso das bibliotecas Numpy, Pandas, sklearn e Matplotlib para o processamento e visualização dos dados
 
 💻 Como usar:
 1. instale todos os requisitos do projeto
 2. Altere os valores dos parametros em algum dos arquivos de problema(problema_classificacao_multiclasse, problema_regressao, ...) e execute ele
+
+ou
+
+1. baixe os notebooks e abra eles no google colab(lembre de baixar os arquivos usados para o treinamento) 
