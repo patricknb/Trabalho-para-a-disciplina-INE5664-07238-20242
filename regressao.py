@@ -15,10 +15,9 @@ class Regressao:
             for i in range(self.num_camadas)
         ]
         self.vieses = [
-            np.zeros((1, self.tamanhos_camadas[i + 1]))
-            for i in range(self.num_camadas)
-        ]
-    
+        np.random.randn(1, self.tamanhos_camadas[i + 1]) * 0.01
+        for i in range(self.num_camadas)
+    ]
     # Função de ativação ReLU (Retifica valores negativos para zero)
     def relu(self, x):
         return np.maximum(0, x)
@@ -26,6 +25,13 @@ class Regressao:
     # Derivada da função ReLU
     def relu_derivada(self, x):
         return (x > 0).astype(int)
+
+    # Função para calcular o erro percentual baseado no RMSE
+    def calcular_erro_percentual(self, rmse, verdadeiros):
+        media_verdadeiros = np.mean(np.abs(verdadeiros))  # Média dos valores reais
+        erro_percentual = (rmse / media_verdadeiros) * 100  # Proporção do RMSE em relação à média dos valores reais
+        return erro_percentual
+
 
     # Propagação para frente (cálculo das saídas)
     def propagacao_frente(self, entradas):
@@ -82,8 +88,8 @@ class Regressao:
         for epoca in range(epocas):
             previsoes = self.propagacao_frente(entradas)
             rmse = self.calcular_rmse(previsoes, verdadeiros)
-            erro_percentual_medio = np.mean(np.abs(previsoes - verdadeiros) / np.maximum(np.abs(verdadeiros), 1e-10)) * 100
-
+            #erro_percentual_medio = np.mean(np.abs(previsoes - verdadeiros) / np.maximum(np.abs(verdadeiros), 1e-10)) * 100
+            erro_percentual_medio = self.calcular_erro_percentual(rmse, verdadeiros)
             self.retropropagacao(verdadeiros)
 
             if epoca % 10 == 0 or epoca == epocas - 1:
@@ -93,7 +99,8 @@ class Regressao:
     def avaliar(self, entradas, verdadeiros):
         previsoes = self.propagacao_frente(entradas)
         rmse = self.calcular_rmse(previsoes, verdadeiros)
-        erro_percentual_medio = np.mean(np.abs(previsoes - verdadeiros) / np.maximum(np.abs(verdadeiros), 1e-10)) * 100
+        #erro_percentual_medio = np.mean(np.abs(previsoes - verdadeiros) / np.maximum(np.abs(verdadeiros), 1e-10)) * 100
+        erro_percentual_medio = self.calcular_erro_percentual(rmse, verdadeiros)
         print(f"RMSE: {rmse:.4f}")
         print(f"Erro percentual médio: {erro_percentual_medio:.2f}%")
         return rmse, erro_percentual_medio
@@ -118,10 +125,10 @@ X_teste = normalizar_dados(dados_teste.iloc[:, :-1].values)
 y_teste = dados_teste.iloc[:, -1].values
 
 # Configuração da rede
-rede = Regressao(entradas_tamanho=X_treino.shape[1], camadas_ocultas=[3, 6, 9, 3, 6, 9], saidas_tamanho=1)
+rede = Regressao(entradas_tamanho=X_treino.shape[1], camadas_ocultas=[10, 8, 6, 4], saidas_tamanho=1)
 
 # Treinamento
-rede.treinar(X_treino, y_treino, epocas=10000, taxa_aprendizado=0.0001)
+rede.treinar(X_treino, y_treino, epocas=5000, taxa_aprendizado=0.001)
 
 # Avaliação
 rede.avaliar(X_teste, y_teste)
